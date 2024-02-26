@@ -45,6 +45,18 @@ fn calculate_implied_spot_price(
     return SpotPrice(price);
 }
 
+fn calculate_implied_dividend(
+    forward_price: ForwardPrice,
+    spot_price: SpotPrice,
+    interest_rate: InterestRate,
+    time_to_maturity: TimeToMaturity
+) -> DividendYield {
+    let interest_adjustment = 1.0 + (interest_rate.0 * time_to_maturity.0);
+    let future_cash_value = spot_price.0 * interest_adjustment;
+    let implied_dividends = future_cash_value - forward_price;
+    return DividendYield(implied_dividends);
+}
+
 #[cfg(test)]
 mod tests {
 }
