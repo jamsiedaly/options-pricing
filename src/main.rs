@@ -53,10 +53,32 @@ fn calculate_implied_dividend(
 ) -> DividendYield {
     let interest_adjustment = 1.0 + (interest_rate.0 * time_to_maturity.0);
     let future_cash_value = spot_price.0 * interest_adjustment;
-    let implied_dividends = future_cash_value - forward_price;
+    let implied_dividends = future_cash_value - forward_price.0;
     return DividendYield(implied_dividends);
 }
 
 #[cfg(test)]
 mod tests {
+    use float_cmp::approx_eq;
+    use crate::{calculate_forward_price, calculate_implied_interest, DividendYield, ForwardPrice, InterestRate, SpotPrice, TimeToMaturity};
+
+    #[test]
+    fn test_calculate_forward_price() {
+        let spot_price = SpotPrice(67.0);
+        let interest_rate = InterestRate(0.0707);
+        let time_to_maturity = TimeToMaturity(8.0/12.0);
+        let expected_dividend = DividendYield(0.66);
+        let forward_price = calculate_forward_price(spot_price, interest_rate, time_to_maturity, expected_dividend).0;
+        approx_eq!(f64, forward_price, 69.5, ulps = 5);
+    }
+
+    #[test]
+    fn test_calculate_implied_interest_rate() {
+        let forward_price = ForwardPrice(69.5);
+        let spot_price = SpotPrice(67.0);
+        let time_to_maturity = TimeToMaturity(8.0/12.0);
+        let expected_dividend = DividendYield(0.66);
+        let interest_rate = calculate_implied_interest(forward_price, spot_price, time_to_maturity, expected_dividend).0;
+        approx_eq!(f64, interest_rate, 0.0707, ulps = 5);
+    }
 }
